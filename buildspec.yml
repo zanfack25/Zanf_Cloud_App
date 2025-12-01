@@ -19,5 +19,14 @@ phases:
       - docker tag $IMAGE_REPO_NAME:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest
       - echo Build completed on `date`
       - echo Pushing the Docker image into ECR...
+     
+  post_build:
+    commands:
+      - echo post Build started on `date`
+      - echo Pushing the Docker image into ECR...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest
       - echo "Image pushed successfully to ECR at `date`"
+      - cat imagedefinitions.json
+  artifacts:
+    files:
+      - echo imagedefinitions.json
