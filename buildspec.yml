@@ -3,8 +3,8 @@ version: 0.2
 env:
   variables:
      AWS_DEFAULT_REGION: "ca-central-1"
-     IMAGE_REPO_NAME: flask-app-registry
-     AWS_ACCOUNT_ID: 845813328978
+     IMAGE_REPO_NAME: flask-app-repo
+     AWS_ACCOUNT_ID: 108271871935
 
 phases:
   pre_build:
@@ -12,19 +12,15 @@ phases:
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:=latest}
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region ca-central-1 | docker login --username AWS --password-stdin 845813328978.dkr.ecr.ca-central-1.amazonaws.com
+      - aws ecr get-login-password --region ca-central-1 | docker login --username AWS --password-stdin 108271871935.dkr.ecr.ca-central-1.amazonaws.com
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...          
-      - docker build -t flask-app-registry .
-      - docker tag flask-app-registry:latest 845813328978.dkr.ecr.ca-central-1.amazonaws.com/flask-app-registry:latest
-  post_build:
+      - docker build -t flask-app-repo .
+      - docker tag flask-app-repo:latest 108271871935.dkr.ecr.ca-central-1.amazonaws.com/flask-app-repo:latest
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image into ECR...
-      - docker push 845813328978.dkr.ecr.ca-central-1.amazonaws.com/flask-app-registry:latest
+      - docker push 108271871935.dkr.ecr.ca-central-1.amazonaws.com/flask-app-repo:latest
       - echo image pushed succcessfully to ECR on `date`
-
-  
-    
