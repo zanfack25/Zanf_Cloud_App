@@ -3,16 +3,18 @@ from flask_cors import CORS
 import socket
 
 app = Flask(__name__)
+CORS(app)  # enable CORS if needed
+
 hostname = socket.gethostname()
 ip_address = socket.gethostbyname(hostname)
 
 @app.route('/host')
 def host_name():
-  return hostname
-    
+    return hostname
+
 @app.route('/ip')
 def host_ip():
-  return ip_address
+    return ip_address
 
 @app.route('/')
 def hello_cloud():
@@ -20,10 +22,7 @@ def hello_cloud():
 
 @app.route('/health')
 def health():
-    # Return a simple 200 OK response
     return 'OK', 200
-app = Flask(__name__)
 
 if __name__ == '__main__':
-    # Keep port consistent with ECS/ALB config
     app.run(host='0.0.0.0', port=80)
