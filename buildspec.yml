@@ -26,6 +26,4 @@ phases:
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest
       - echo "Image pushed successfully to ECR at `date`"
       - cat imagedefinitions.json
-  artifacts:
-    files:
-      - echo imagedefinitions.json
+ 
