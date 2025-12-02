@@ -18,7 +18,6 @@ phases:
       - docker build -t $IMAGE_REPO_NAME .
       - docker tag $IMAGE_REPO_NAME:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest
       - echo Build completed on `date`
-      - echo Pushing the Docker image into ECR...
      
   post_build:
     commands:
