@@ -3,8 +3,8 @@ version: 0.2
 env:
   variables:
     AWS_DEFAULT_REGION: "ca-central-1"
-    IMAGE_REPO_NAME: flask-app-repo
-    AWS_ACCOUNT_ID: 108271871935
+    IMAGE_REPO_NAME: david-app-repo
+    AWS_ACCOUNT_ID: 387324564533
 
 phases:
   pre_build:
