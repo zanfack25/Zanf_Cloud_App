@@ -6,8 +6,8 @@ env:
     IMAGE_REPO_NAME: david-app-repo
     AWS_ACCOUNT_ID: 387324564533
     IMAGE_TAG: latest
-    CLUSTER_NAME:davprojectCluster
-    SERVICE_NAME:David-Exam-infra-davprojectService
+    CLUSTER_NAME: davprojectCluster
+    SERVICE_NAME: david-Exam-infra-davprojectService
 
 phases:
   pre_build:
