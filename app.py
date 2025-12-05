@@ -9,5 +9,9 @@ CORS(app)  # enable CORS if needed
 def hello_cloud():
     return 'Hello from David Zanfack DevOps ECS Container deployment!'
 
+@app.route('/health')
+def health():
+    return 'OK', 200
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=80)
