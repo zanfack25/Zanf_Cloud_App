@@ -3,178 +3,97 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3D Ball Clicking Game</title>
+<title>Ball Clicking Game</title>
 
 <link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
 <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
 
-<!-- THREE.JS CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
-
-<!-- GSAP (for optional animations) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-
 <style>
-  body { background:#121212; color:white; text-align:center; font-family:Roboto; margin:0; padding:0; }
-  #game-container {
-    width:100%; height:500px; margin-top:10px;
+  body { background:#eee; font-family:Roboto; text-align:center; padding:20px; }
+  #game-area {
+    position:relative; width:100%; height:450px;
+    background:white; margin-top:20px; border-radius:12px;
+    overflow:hidden;
   }
-  #stats {
-    display:none; margin-top:20px; padding:20px;
+  .ball {
+    position:absolute; border-radius:50%; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    color:white; font-weight:bold;
   }
+  #stats { display:none; margin-top:20px; }
 </style>
 </head>
+
 <body>
 
-<h2>3D Ball Challenge</h2>
+<h2>Ball Shooting Game</h2>
 <h3>Good luck, {{ username }}!</h3>
 
-<!-- Background Sound -->
-<audio id="bg-sound" loop autoplay>
-  <source src="https://cdn.pixabay.com/audio/2021/08/04/audio_619b701a65.mp3" type="audio/mp3">
-</audio>
+<div id="game-area" class="mdc-elevation--z4"></div>
 
-<div id="game-container"></div>
-
-<div id="stats" class="mdc-card mdc-elevation--z4" style="color:black;">
+<div id="stats" class="mdc-card" style="padding:20px;">
   <h2>Game Results</h2>
   <p><strong>Total Balls:</strong> <span id="total-balls"></span></p>
   <p><strong>Total Points:</strong> <span id="total-points"></span></p>
-  <p><strong>Final Score:</strong> <span id="final-score"></span></p>
+  <p><strong>Game Score:</strong> <span id="final-score"></span></p>
   <h3 id="medal"></h3>
 </div>
 
 <script>
-const container = document.getElementById("game-container");
-let scene, camera, renderer, raycaster, mouse;
-let spheres = [];
+const gameArea = document.getElementById("game-area");
 const totalBalls = 20;
-let launched = 0;
+let ballsLaunched = 0;
 let points = 0;
 
-// FORCE container height in case CSS failed
-container.style.height = "500px";
+function launchBall() {
+  if (ballsLaunched >= totalBalls) return endGame();
 
-init3D();
-launchSphere();
+  ballsLaunched++;
 
-function init3D() {
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color("#202020"); // not pure black for visibility
+  const size = Math.random()*40 + 40;
+  const score = Math.floor(Math.random()*9 + 1);
 
-  const width = container.clientWidth;
-  const height = container.clientHeight;
+  const ball = document.createElement("div");
+  ball.className = "ball";
+  ball.style.width = size + "px";
+  ball.style.height = size + "px";
+  ball.style.background = `hsl(${Math.random()*360}, 90%, 50%)`;
+  ball.textContent = score;
 
-  // FIX CAMERA
-  camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
-  camera.position.z = 30;         // BIG FIX
-  camera.position.y = 0;
-  camera.lookAt(0, 0, 0);
+  ball.style.left = Math.random()*(gameArea.clientWidth - size) + "px";
+  ball.style.top = Math.random()*(gameArea.clientHeight - size) + "px";
 
-  // FIX RENDERER SETUP
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(width, height);
-  renderer.setPixelRatio(window.devicePixelRatio);
-  container.appendChild(renderer.domElement);
+  ball.onclick = () => {
+    points += score;
+    gameArea.removeChild(ball);
+  };
 
-  // FIX LIGHTING
-  const light = new THREE.PointLight(0xffffff, 2);
-  light.position.set(10, 20, 10);
-  scene.add(light);
+  gameArea.appendChild(ball);
 
-  scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-
-  raycaster = new THREE.Raycaster();
-  mouse = new THREE.Vector2();
-
-  renderer.domElement.addEventListener("click", onClick);
-  window.addEventListener("resize", onResize);
-
-  animate();
-}
-
-function onResize() {
-  const width = container.clientWidth;
-  const height = container.clientHeight;
-
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
-
-  renderer.setSize(width, height);
-}
-
-function createBall() {
-  const score = Math.floor(Math.random() * 9 + 1);
-  const geometry = new THREE.SphereGeometry(1.5, 32, 32);
-  const material = new THREE.MeshStandardMaterial({
-    color: new THREE.Color(`hsl(${Math.random() * 360}, 100%, 50%)`),
-    roughness: 0.2,
-    metalness: 0.8
-  });
-
-  const ball = new THREE.Mesh(geometry, material);
-
-  // FIX POSITION RANGE — must be inside the camera view
-  ball.position.x = (Math.random() * 20) - 10;
-  ball.position.y = (Math.random() * 10) - 5;
-  ball.position.z = 0;
-
-  ball.userData.score = score;
-  scene.add(ball);
-
-  spheres.push(ball);
-
-  // Remove after 1 second if not clicked
   setTimeout(() => {
-    if (scene.children.includes(ball)) {
-      scene.remove(ball);
-      spheres = spheres.filter(b => b !== ball);
-    }
-  }, 1200);
-}
+    if (gameArea.contains(ball)) gameArea.removeChild(ball);
+  }, 900);
 
-function launchSphere() {
-  if (launched >= totalBalls) return endGame();
-  launched++;
-  createBall();
-  setTimeout(launchSphere, 700);
-}
-
-function onClick(event) {
-  const rect = renderer.domElement.getBoundingClientRect();
-
-  mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-  mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-  raycaster.setFromCamera(mouse, camera);
-
-  const hits = raycaster.intersectObjects(spheres);
-  if (hits.length === 0) return;
-
-  const hit = hits[0].object;
-  points += hit.userData.score;
-  scene.remove(hit);
-  spheres = spheres.filter(b => b !== hit);
+  setTimeout(launchBall, 700);
 }
 
 function endGame() {
-  document.getElementById("total-balls").textContent = launched;
+  document.getElementById("total-balls").textContent = ballsLaunched;
   document.getElementById("total-points").textContent = points;
   document.getElementById("final-score").textContent = points;
 
   let medal = "No Medal";
-  if (points >= 120) medal = "🥇 GOLD Medal";
-  else if (points >= 90) medal = "🥈 SILVER Medal";
-  else if (points >= 60) medal = "🥉 BRONZE Medal";
+  if (points >= 120) medal = "🥇 Gold Medal";
+  else if (points >= 90) medal = "🥈 Silver Medal";
+  else if (points >= 60) medal = "🥉 Bronze Medal";
 
   document.getElementById("medal").textContent = medal;
+
   document.getElementById("stats").style.display = "block";
 }
 
-function animate() {
-  requestAnimationFrame(animate);
-  renderer.render(scene, camera);
-}
+launchBall();
 </script>
+
 </body>
 </html>
