@@ -22,6 +22,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         
+      # Linting Python
+      - name: Lint Python code
+        run: |
+          pip install flake8
+          flake8 .
+          
+      # Linting Dockerfile
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v2
+        with:
+          dockerfile: Dockerfile
+          
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
