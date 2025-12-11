@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reaction Test</title>
+
+<link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
+<script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+
+<style>
+  body { text-align:center; background:#fafafa; padding:20px; font-family:Roboto; }
+  #game-box {
+    margin: 30px auto; width:90%; max-width:500px; height:250px;
+    border-radius: 12px; display:flex; justify-content:center; align-items:center;
+    background:#6200ea; color:white; font-size:24px; cursor:pointer; transition:0.3s;
+  }
+  #game-box.waiting { background:#ff1744; }
+  #game-box.ready { background:#00c853; }
+</style>
+</head>
+<body>
+
+<h2>Hello {{ username }} 👋</h2>
+<h3>Reaction Time Test</h3>
+
+<div id="game-box" class="mdc-elevation--z4">Tap Start</div>
+
+<button id="start-btn" class="mdc-button mdc-button--raised" style="margin-top:20px;">
+  Start
+</button>
+
+<script>
+let startTime = null;
+let timeout = null;
+let gameStarted = false;
+
+const box = document.getElementById("game-box");
+const btn = document.getElementById("start-btn");
+
+btn.addEventListener("click", () => {
+  gameStarted = true;
+  box.className = "waiting mdc-elevation--z4";
+  box.textContent = "Wait...";
+
+  const wait = Math.random()*3000 + 1500;
+  timeout = setTimeout(() => {
+    box.className = "ready mdc-elevation--z4";
+    box.textContent = "TAP!";
+    startTime = Date.now();
+  }, wait);
+});
+
+box.addEventListener("click", () => {
+  if (!gameStarted) return;
+
+  if (box.classList.contains("waiting")) {
+    box.textContent = "Too Early!";
+    gameStarted = false;
+    clearTimeout(timeout);
+    return;
+  }
+
+  if (box.classList.contains("ready")) {
+    const reaction = Date.now() - startTime;
+    box.textContent = `Your time: ${reaction} ms`;
+
+    // Automatically load next game after 2 seconds
+    setTimeout(() => {
+      window.location.href = "/ball-game";
+    }, 2000);
+  }
+});
+</script>
+
+</body>
+</html>
