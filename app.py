@@ -1,13 +1,12 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # enable CORS if needed
+CORS(app)
 
-
-@app.route('/')
-def hello_cloud():
-    return 'Hello from David Zanfack DevOps ECS Container deployment!'
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 @app.route('/health')
 def health():
@@ -15,3 +14,4 @@ def health():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
+
