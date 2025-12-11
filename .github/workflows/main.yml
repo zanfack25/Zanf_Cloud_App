@@ -35,13 +35,26 @@ jobs:
           aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
           echo "AWS ECR Login successful at $(date)"
 
-      - name: Build and push Docker image
+      - name: Build the Docker image
         run: |
           echo "Build started on $(date)"
           docker build -t $IMAGE_REPO_NAME .
-          docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
-          echo "Container built successfully at $(date)"
-      
+          
+      # --- CONTAINER SECURITY SCANNING ---
+      - name: Scan Docker image with Trivy
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: ${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
+          format: 'table'
+          exit-code: '1'          # Fail pipeline if vulnerabilities found
+          ignore-unfixed: true    # Ignore vulnerabilities with no upstream fix
+          
+      # -------Container image tagging ------------------------------
+      - name: Tag Docker image
+        run: |
+          docker tag $IMAGE_REPO_NAME:$IMAGE_TAG \
+            $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+
       - name: Push image to ECR
         run: |
           echo "Pushing image..."
