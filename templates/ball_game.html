@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ball Clicking Game</title>
+
+<link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
+<script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+
+<style>
+  body { background:#eee; font-family:Roboto; text-align:center; padding:20px; }
+  #game-area {
+    position:relative; width:100%; height:450px;
+    background:white; margin-top:20px; border-radius:12px;
+    overflow:hidden;
+  }
+  .ball {
+    position:absolute; border-radius:50%; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    color:white; font-weight:bold;
+  }
+  #stats { display:none; margin-top:20px; }
+</style>
+</head>
+
+<body>
+
+<h2>Ball Shooting Game</h2>
+<h3>Good luck, {{ username }}!</h3>
+
+<div id="game-area" class="mdc-elevation--z4"></div>
+
+<div id="stats" class="mdc-card" style="padding:20px;">
+  <h2>Game Results</h2>
+  <p><strong>Total Balls:</strong> <span id="total-balls"></span></p>
+  <p><strong>Total Points:</strong> <span id="total-points"></span></p>
+  <p><strong>Game Score:</strong> <span id="final-score"></span></p>
+  <h3 id="medal"></h3>
+</div>
+
+<script>
+const gameArea = document.getElementById("game-area");
+const totalBalls = 20;
+let ballsLaunched = 0;
+let points = 0;
+
+function launchBall() {
+  if (ballsLaunched >= totalBalls) return endGame();
+
+  ballsLaunched++;
+
+  const size = Math.random()*40 + 40;
+  const score = Math.floor(Math.random()*9 + 1);
+
+  const ball = document.createElement("div");
+  ball.className = "ball";
+  ball.style.width = size + "px";
+  ball.style.height = size + "px";
+  ball.style.background = `hsl(${Math.random()*360}, 90%, 50%)`;
+  ball.textContent = score;
+
+  ball.style.left = Math.random()*(gameArea.clientWidth - size) + "px";
+  ball.style.top = Math.random()*(gameArea.clientHeight - size) + "px";
+
+  ball.onclick = () => {
+    points += score;
+    gameArea.removeChild(ball);
+  };
+
+  gameArea.appendChild(ball);
+
+  setTimeout(() => {
+    if (gameArea.contains(ball)) gameArea.removeChild(ball);
+  }, 900);
+
+  setTimeout(launchBall, 700);
+}
+
+function endGame() {
+  document.getElementById("total-balls").textContent = ballsLaunched;
+  document.getElementById("total-points").textContent = points;
+  document.getElementById("final-score").textContent = points;
+
+  let medal = "No Medal";
+  if (points >= 120) medal = "🥇 Gold Medal";
+  else if (points >= 90) medal = "🥈 Silver Medal";
+  else if (points >= 60) medal = "🥉 Bronze Medal";
+
+  document.getElementById("medal").textContent = medal;
+
+  document.getElementById("stats").style.display = "block";
+}
+
+launchBall();
+</script>
+
+</body>
+</html>
