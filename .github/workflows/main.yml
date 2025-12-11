@@ -30,7 +30,7 @@ jobs:
           
       # Linting Dockerfile
       - name: Lint Dockerfile
-        uses: hadolint/hadolint-action@v1
+        uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: Dockerfile
           
