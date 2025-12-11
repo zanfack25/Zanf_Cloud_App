@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reaction Time Game</title>
+
+  <!-- Material Components Web -->
+  <link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
+  <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+
+  <style>
+    body {
+      background: #f5f5f5;
+      font-family: Roboto, sans-serif;
+      margin: 0;
+      padding: 16px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+      font-weight: 400;
+    }
+
+    #game-box {
+      margin: 30px auto;
+      width: 90%;
+      max-width: 500px;
+      height: 250px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #6200ea;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #game-box.waiting {
+      background: #ff1744;
+    }
+
+    #game-box.ready {
+      background: #00c853;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Reaction Time Game</h1>
+
+    <div id="game-box" class="mdc-elevation--z4">
+      Tap <strong>Start</strong> to Begin
+    </div>
+
+    <button id="start-btn" class="mdc-button mdc-button--raised" style="margin-top:20px;">
+      <span class="mdc-button__label">Start</span>
+    </button>
+
+    <div id="result-card" class="mdc-card" style="margin-top:25px; display:none; padding:20px;">
+      <h2 style="margin:0;">Your Reaction Time</h2>
+      <p id="reaction-time" style="font-size: 32px; margin:10px 0;"></p>
+    </div>
+  </div>
+
+  <!-- Snackbar -->
+  <div id="snackbar" class="mdc-snackbar">
+    <div class="mdc-snackbar__surface">
+      <div class="mdc-snackbar__label" role="status" aria-live="polite"></div>
+      <div class="mdc-snackbar__actions">
+        <button type="button" class="mdc-button mdc-snackbar__action">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const startBtn = document.getElementById("start-btn");
+    const gameBox = document.getElementById("game-box");
+    const resultCard = document.getElementById("result-card");
+    const reactionTimeEl = document.getElementById("reaction-time");
+    const snackbar = new mdc.snackbar.MDCSnackbar(document.querySelector(".mdc-snackbar"));
+
+    let startTime = null;
+    let timeout = null;
+    let gameStarted = false;
+
+    function showMessage(msg) {
+      snackbar.labelText = msg;
+      snackbar.open();
+    }
+
+    startBtn.addEventListener("click", () => {
+      gameStarted = true;
+      resultCard.style.display = "none";
+      gameBox.className = "waiting mdc-elevation--z4";
+      gameBox.textContent = "Wait for Green...";
+
+      const waitTime = Math.random() * 3000 + 1500; // 1.5s to 4.5s
+      timeout = setTimeout(() => {
+        gameBox.className = "ready mdc-elevation--z4";
+        gameBox.textContent = "TAP!";
+        startTime = Date.now();
+      }, waitTime);
+    });
+
+    gameBox.addEventListener("click", () => {
+      if (!gameStarted) return;
+
+      // clicked too early
+      if (gameBox.classList.contains("waiting")) {
+        clearTimeout(timeout);
+        gameStarted = false;
+        gameBox.className = "mdc-elevation--z4";
+        gameBox.textContent = "Too Soon!";
+        showMessage("You clicked too early!");
+        return;
+      }
+
+      // valid click
+      if (gameBox.classList.contains("ready")) {
+        const reaction = Date.now() - startTime;
+
+        reactionTimeEl.textContent = reaction + " ms";
+        resultCard.style.display = "block";
+
+        gameStarted = false;
+        gameBox.className = "mdc-elevation--z4";
+        gameBox.textContent = "Tap Start to try again";
+
+        showMessage("Nice reflex!");
+      }
+    });
+  </script>
+
+</body>
+</html>
