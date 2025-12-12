@@ -1,4 +1,4 @@
-name: Build_and_Deploy_Cloud_Web_App_to_AWS_ECS
+name: Build_and_Deploy_Cloud_Web_App_to_AWS_ECS_test
 
 on:
   push:
